@@ -39,48 +39,43 @@ app.post('/products', (req, res) => {
       res.status(201).send('Product added successfully');
     }
   });
-  // if ((Number.isInteger(req.body.price)) & (Number.isInteger(req.body.stock))) {
-  //   if (!req.body.category) {
-  //     const newProduct = {
-  //       id: products.length + 1,
-  //       name: String(req.body.name),
-  //       category: "-",
-  //       price: req.body.price,
-  //       stock: req.body.stock
-  //     };
-  //     products.push(newProduct);
-  //     res.json(newProduct);
-  //     console.log(newProduct);
-  //   }
-  //   else {
-  //     const newProduct = {
-  //       id: products.length + 1,
-  //       name: String(req.body.name),
-  //       category: req.body.category,
-  //       price: req.body.price,
-  //       stock: req.body.stock
-  //     };
-  //     products.push(newProduct);
-  //     res.json(newProduct);
-  //     console.log(newProduct);
-  //   }
-  // }
-  // else {
-  //   return res.status(404).send('price and stock must be Number');
-  // }
+});
+
+app.get('/products',(req,res) =>{
+  const sql = "SELECT * FROM products";
+  con.query(sql, function (err, result, fields) {
+    if (err) throw err;
+    res.send(result);
+    const jsonData = JSON.stringify(result);
+    console.log(jsonData);
+  });
+});
+
+app.get('/products/:id',(req,res) =>{
+  const sql = "SELECT * FROM products WHERE id=?";
+  const id = req.params.id
+  con.query(sql, id, function (err, result, fields) {
+    if (err) throw err;
+    res.send(result);
+    const jsonData = JSON.stringify(result);
+    console.log(jsonData);
+  });
+});
+
+app.delete('/products/:id',(req,res) =>{
+  const sql = "DELETE FROM products WHERE id = ? ";
+  const id = req.params.id
+  con.query(sql, id, function (err, result) {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      console.log("deleted successfully");
+      res.status(201).send('Product deleted successfully');
+    }
+  });
 
 });
 
-
-// con.connect(function(err) {
-//   if (err) throw err;
-//   console.log("Connected!");
-//   const sql = "CREATE TABLE products (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), category VARCHAR(255), price FLOAT, stock INT)";
-//   con.query(sql, function (err, result) {
-//     if (err) throw err;
-//     console.log("Table created");
-//   });
-// });
 
 
 app.listen(port, () => {
