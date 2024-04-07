@@ -41,7 +41,7 @@ app.post('/products', (req, res) => {
   });
 });
 
-app.get('/products',(req,res) =>{
+app.get('/products', (req, res) => {
   const sql = "SELECT * FROM products";
   con.query(sql, function (err, result, fields) {
     if (err) throw err;
@@ -51,7 +51,7 @@ app.get('/products',(req,res) =>{
   });
 });
 
-app.get('/products/:id',(req,res) =>{
+app.get('/products/:id', (req, res) => {
   const sql = "SELECT * FROM products WHERE id=?";
   const id = req.params.id
   con.query(sql, id, function (err, result, fields) {
@@ -60,9 +60,11 @@ app.get('/products/:id',(req,res) =>{
     const jsonData = JSON.stringify(result);
     console.log(jsonData);
   });
+
 });
 
-app.delete('/products/:id',(req,res) =>{
+
+app.delete('/products/:id', (req, res) => {
   const sql = "DELETE FROM products WHERE id = ? ";
   const id = req.params.id
   con.query(sql, id, function (err, result) {
@@ -76,6 +78,23 @@ app.delete('/products/:id',(req,res) =>{
 
 });
 
+app.put('/products/:id', (req, res) => {
+  const sql = "SELECT * FROM products WHERE id=?";
+  const id = req.params.id
+  let data
+  con.query(sql, id, function (err, result, fields) {
+    if (err) throw err;
+    data = result[0]
+    console.log("----------------->" + data.stock);
+    const sql_update = "UPDATE products SET name = ? , category = ? , price = ? , stock = ? WHERE id = ?";
+    const values = [req.body.name || data.name, req.body.category || data.category, req.body.price || data.price, req.body.stock || data.stock, req.params.id];
+    con.query(sql_update, values, function (err, result) {
+      if (err) throw err;
+      console.log(result.affectedRows + " record(s) updated");
+      res.status(201).send('Product updated successfully');
+    });
+  });
+});
 
 
 app.listen(port, () => {
