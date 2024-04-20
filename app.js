@@ -25,20 +25,32 @@ app.use((req, res, next) => {
 // Middleware for parsing JSON
 app.use(express.json());
 
-app.post('/products', (req, res) => {
-  if (!req.body.name || !req.body.price || !req.body.stock) {
-    res.status(404).send('Please specify the product name ,price or stock of the product.');
-  }
-  const sql = "INSERT INTO products (name, category, price, stock) VALUES (?, ?, ?, ?)";
-  const values = [req.body.name, req.body.category, req.body.price, req.body.stock];
-  con.query(sql, values, function (err, result) {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      console.log("1 record inserted");
-      res.status(201).send('Product added successfully');
+
+app.post('/products', async (req, res) => {
+  try {
+    if ((!req.body.name) || (!req.body.price) || (!req.body.stock)) {
+      res.status(404).send('Please specify the product name, price, or stock of the product.');
+      return;
     }
-  });
+    
+    const sql = "INSERT INTO products (name, category, price, stock) VALUES (?, ?, ?, ?)";
+    const values = [req.body.name, req.body.category, req.body.price, req.body.stock];
+
+    await new Promise((resolve, reject) => {
+      con.query(sql, values, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          console.log("1 record inserted");
+          resolve(result);
+        }
+      });
+    });
+
+    res.status(201).send('Product added successfully');
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 app.get('/products', (req, res) => {
